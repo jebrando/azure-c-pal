@@ -9,10 +9,20 @@
 
 #include "mimalloc.h"
 
+static void mi_cdecl gballoc_ll_mimalloc_log(const char* msg, void* arg)
+{
+    (void)arg;
+    LogVerbose("mimalloc: %s", msg);
+}
+
 int gballoc_ll_init(void* params)
 {
     /*Codes_SRS_GBALLOC_LL_MIMALLOC_02_001: [ gballoc_ll_init shall return 0. ]*/
     (void)params;
+
+    mi_register_output(gballoc_ll_mimalloc_log, NULL);
+    mi_option_enable(mi_option_verbose);
+
     return 0;
 }
 
