@@ -34,7 +34,9 @@ if(${run_int_tests})
     build_test_folder(gballoc_ll_jemalloc_int)
     build_test_folder(gballoc_ll_win32heap_int) 
     build_test_folder(gballoc_ll_passthrough_int)
-    
+
+    build_test_folder(socket_handle_win32_int)
+
     #this builds and runs the same test for gballoc_hl but with all the implementations of the underlying gballoc_ll.
     #this scripts sets 2 variables (GBALOC_LL_IMPL/GBALLOC_HL_IMPL) that is picked as underlying implementation for gballoc_hl/ll and consequentially as file name (gballoc_ll_${GBALOC_LL_IMPL}) (gballoc_hl_${GBALOC_HL_IMPL})
     foreach(GBALOC_HL_IMPL ${GBALLOC_HL_TYPE_VALUES})

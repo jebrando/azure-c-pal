@@ -93,7 +93,7 @@ static int construct_socket_object(SOCKET_INSTANCE* comm_impl)
 
     if (comm_impl->socket == INVALID_SOCKET)
     {
-        LogError("Failure on socket call");
+        LogLastError("Failure on socket call error: %d", WSAGetLastError());
         result = __LINE__;
     }
     else
@@ -282,7 +282,7 @@ static SOCKET_INSTANCE* create_socket_info(const SOCKET_CONFIG* config)
         }
         else
         {
-            if (config->accepted_socket != INVALID_SOCKET)
+            if (config->accepted_socket != INVALID_SOCKET && config->accepted_socket != 0)
             {
                 // [ If the Accepted socket is supplied the current state will be set to Open. ]
                 result->socket = config->accepted_socket;

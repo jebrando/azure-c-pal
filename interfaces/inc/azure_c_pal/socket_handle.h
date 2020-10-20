@@ -64,7 +64,7 @@ MOCKABLE_FUNCTION(, SOCKET_HANDLE, socket_create, const SOCKET_CONFIG*, paramete
 MOCKABLE_FUNCTION(, void, socket_destroy, SOCKET_HANDLE, handle);
 MOCKABLE_FUNCTION(, int, socket_open, SOCKET_HANDLE, handle, ON_OPEN_COMPLETE, on_open_complete, void*, user_ctx);
 MOCKABLE_FUNCTION(, int, socket_close, SOCKET_HANDLE, handle, ON_CLOSE_COMPLETE, on_close_complete, void*, user_ctx);
-MOCKABLE_FUNCTION(, int, socket_send, SOCKET_HANDLE, handle, const void*, buffer, size_t, size, ON_SEND_COMPLETE, on_send_complete, void*, user_ctx)
+MOCKABLE_FUNCTION(, int, socket_send, SOCKET_HANDLE, handle, const void*, buffer, size_t, size, ON_SEND_COMPLETE, on_send_complete, void*, user_ctx);
 MOCKABLE_FUNCTION(, int, socket_recv, SOCKET_HANDLE, handle, ON_BYTES_RECEIVED, on_bytes_recv, void*, user_ctx);
 MOCKABLE_FUNCTION(, int, socket_send_notify, SOCKET_HANDLE, handle, const void*, buffer, uint32_t, size, uint32_t, flags, void*, notify_info);
 MOCKABLE_FUNCTION(, int, socket_recv_notify, SOCKET_HANDLE, handle, void*, buffer, uint32_t, size, uint32_t*, flags, void*, notify_info);
