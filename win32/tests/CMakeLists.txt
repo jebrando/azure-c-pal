@@ -2,30 +2,27 @@
 
 # unit tests
 if(${run_unittests})
-    build_test_folder(execution_engine_win32_ut)
     build_test_folder(async_socket_win32_ut)
-    build_test_folder(threadpool_win32_ut)
-    build_test_folder(interlocked_win32_ut)
-    build_test_folder(platform_win32_ut)
-    build_test_folder(uniqueid_win32_ut)
-    build_test_folder(timer_win32_ut)
-    build_test_folder(srw_lock_win32_ut)
-    build_test_folder(reals_win32_ut)
-    build_test_folder(sync_win32_ut)
+    build_test_folder(execution_engine_win32_ut)
     build_test_folder(file_win32_ut)
-    
     build_test_folder(gballoc_hl_metrics_ut)
-    build_test_folder(gballoc_hl_metrics_wout_init_ut)  
-    
+    build_test_folder(gballoc_hl_metrics_wout_init_ut)
+    build_test_folder(gballoc_hl_passthrough_ut)
     build_test_folder(gballoc_ll_passthrough_ut)
     build_test_folder(gballoc_ll_win32heap_ut)
-    
+
     build_test_folder(gballoc_ll_mimalloc_ut)
     build_test_folder(gballoc_ll_jemalloc_ut)
-        
-    build_test_folder(gballoc_hl_passthrough_ut)
-    
-    
+
+    build_test_folder(interlocked_win32_ut)
+    build_test_folder(platform_win32_ut)
+    build_test_folder(reals_win32_ut)
+    build_test_folder(socket_handle_win32_ut)
+    build_test_folder(srw_lock_win32_ut)
+    build_test_folder(sync_win32_ut)
+    build_test_folder(threadpool_win32_ut)
+    build_test_folder(timer_win32_ut)
+    build_test_folder(uniqueid_win32_ut)
 endif()
 
 if(${run_int_tests})

@@ -3,10 +3,12 @@
 set(pal_common_h_files
     ../common/inc/azure_c_pal/call_once.h
     ../common/inc/azure_c_pal/lazy_init.h
+    ../common/inc/azure_c_pal/gballoc_socket.h
 )
 
 set(pal_common_c_files
     ../common/src/call_once.c
+    ../common/src/gballoc_socket.c
     ../common/src/lazy_init.c
 )
 
@@ -25,20 +27,22 @@ set(pal_win32_h_files
 
 set(pal_win32_c_files
     ${pal_common_c_files}
-    src/execution_engine_win32.c
     src/async_socket_win32.c
-    src/threadpool_win32.c
-    src/interlocked_win32.c
-    src/platform_win32.c
-    src/threadapi_win32.c
-    src/uniqueid_win32.c
-    src/srw_lock_win32.c
-    src/string_utils.c
-    src/timer.c
-    src/sync_win32.c
+    src/execution_engine_win32.c
     src/file_win32.c
     src/${gballoc_ll_c}
     src/${gballoc_hl_c}
+    src/interlocked_win32.c
+    src/platform_win32.c
+    src/socket_handle_win32.c
+    src/srw_lock_win32.c
+    src/string_utils.c
+    src/sync_win32.c
+    src/threadpool_win32.c
+    src/threadapi_win32.c
+    src/timer.c
+    src/tls_handle_win32.c
+    src/uniqueid_win32.c
 )
 
 FILE(GLOB pal_win32_md_files "devdoc/*.md")

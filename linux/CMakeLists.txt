@@ -3,10 +3,12 @@
 set(pal_common_h_files
     ../common/inc/azure_c_pal/call_once.h
     ../common/inc/azure_c_pal/lazy_init.h
+    ../common/inc/azure_c_pal/gballoc_socket.h
 )
 
 set(pal_common_c_files
     ../common/src/call_once.c
+    ../common/src/gballoc_socket.c
     ../common/src/lazy_init.c
 )
 

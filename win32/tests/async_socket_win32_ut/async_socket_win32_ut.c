@@ -1042,107 +1042,7 @@ TEST_FUNCTION(when_underlying_calls_fail_async_socket_send_async_fails)
     async_socket_destroy(async_socket);
 }
 
-/* Tests_SRS_ASYNC_SOCKET_WIN32_01_062: [ If WSASend fails, async_socket_send_async shall call WSAGetLastError. ]*/
-/* Tests_SRS_ASYNC_SOCKET_WIN32_01_053: [ If WSAGetLastError returns WSA_IO_PENDING, it shall be not treated as an error. ]*/
-TEST_FUNCTION(when_get_last_error_for_send_returns_WSA_IO_PENDING_it_is_treated_as_successfull)
-{
-    // arrange
-    ASYNC_SOCKET_HANDLE async_socket = async_socket_create(test_execution_engine, test_socket);
-    int result;
-    uint8_t payload_bytes[] = { 0x42 };
-    ASYNC_SOCKET_BUFFER payload_buffers[1];
-    PTP_IO test_ptp_io;
-    PTP_WIN32_IO_CALLBACK test_on_io_complete;
-    PVOID test_ptp_io_context;
-    LPOVERLAPPED overlapped;
-
-    payload_buffers[0].buffer = payload_bytes;
-    payload_buffers[0].length = sizeof(payload_bytes);
-    umock_c_reset_all_calls();
-    STRICT_EXPECTED_CALL(mocked_InitializeThreadpoolEnvironment(IGNORED_ARG));
-    STRICT_EXPECTED_CALL(mocked_SetThreadpoolCallbackPool(IGNORED_ARG, test_pool));
-    STRICT_EXPECTED_CALL(mocked_CreateThreadpoolCleanupGroup());
-    STRICT_EXPECTED_CALL(mocked_CreateThreadpoolIo(test_socket, IGNORED_ARG, IGNORED_ARG, IGNORED_ARG))
-        .CaptureReturn(&test_ptp_io)
-        .CaptureArgumentValue_pv(&test_ptp_io_context)
-        .CaptureArgumentValue_pfnio(&test_on_io_complete);
-    (void)async_socket_open_async(async_socket, test_on_open_complete, (void*)0x4242);
-    umock_c_reset_all_calls();
-
-    STRICT_EXPECTED_CALL(malloc(IGNORED_ARG));
-    STRICT_EXPECTED_CALL(mocked_CreateEventA(NULL, FALSE, FALSE, NULL));
-    STRICT_EXPECTED_CALL(mocked_StartThreadpoolIo(test_ptp_io));
-    STRICT_EXPECTED_CALL(mocked_WSASend((SOCKET)test_socket, IGNORED_ARG, 1, NULL, 0, IGNORED_ARG, NULL))
-        .CaptureArgumentValue_lpOverlapped(&overlapped)
-        .SetReturn(SOCKET_ERROR);
-    STRICT_EXPECTED_CALL(mocked_WSAGetLastError())
-        .SetReturn(WSA_IO_PENDING);
-
-    // act
-    result = async_socket_send_async(async_socket, payload_buffers, sizeof(payload_buffers) / sizeof(payload_buffers[0]), test_on_send_complete, NULL);
-
-    // assert
-    ASSERT_ARE_EQUAL(int, 0, result);
-    ASSERT_ARE_EQUAL(char_ptr, umock_c_get_expected_calls(), umock_c_get_actual_calls());
-
-    // cleanup
-    test_on_io_complete(NULL, test_ptp_io_context, overlapped, NO_ERROR, (ULONG_PTR)1, test_ptp_io);
-    async_socket_destroy(async_socket);
-}
-
-/* Tests_SRS_ASYNC_SOCKET_WIN32_01_100: [ If WSAGetLastError returns any other error, async_socket_send_async shall call CancelThreadpoolIo. ]*/
-TEST_FUNCTION(when_get_last_error_for_send_returns_an_error_then_async_socket_send_async_cancels_the_IO)
-{
-    // arrange
-    ASYNC_SOCKET_HANDLE async_socket = async_socket_create(test_execution_engine, test_socket);
-    int result;
-    uint8_t payload_bytes[] = { 0x42 };
-    ASYNC_SOCKET_BUFFER payload_buffers[1];
-    PTP_IO test_ptp_io;
-    PTP_WIN32_IO_CALLBACK test_on_io_complete;
-    PVOID test_ptp_io_context;
-    LPOVERLAPPED overlapped;
-    HANDLE overlapped_event;
-
-    payload_buffers[0].buffer = payload_bytes;
-    payload_buffers[0].length = sizeof(payload_bytes);
-    umock_c_reset_all_calls();
-    STRICT_EXPECTED_CALL(mocked_InitializeThreadpoolEnvironment(IGNORED_ARG));
-    STRICT_EXPECTED_CALL(mocked_SetThreadpoolCallbackPool(IGNORED_ARG, test_pool));
-    STRICT_EXPECTED_CALL(mocked_CreateThreadpoolCleanupGroup());
-    STRICT_EXPECTED_CALL(mocked_CreateThreadpoolIo(test_socket, IGNORED_ARG, IGNORED_ARG, IGNORED_ARG))
-        .CaptureReturn(&test_ptp_io)
-        .CaptureArgumentValue_pv(&test_ptp_io_context)
-        .CaptureArgumentValue_pfnio(&test_on_io_complete);
-    (void)async_socket_open_async(async_socket, test_on_open_complete, (void*)0x4242);
-    umock_c_reset_all_calls();
-
-    STRICT_EXPECTED_CALL(malloc(IGNORED_ARG));
-    STRICT_EXPECTED_CALL(mocked_CreateEventA(NULL, FALSE, FALSE, NULL))
-        .CaptureReturn(&overlapped_event);
-    STRICT_EXPECTED_CALL(mocked_StartThreadpoolIo(test_ptp_io));
-    STRICT_EXPECTED_CALL(mocked_WSASend((SOCKET)test_socket, IGNORED_ARG, 1, NULL, 0, IGNORED_ARG, NULL))
-        .CaptureArgumentValue_lpOverlapped(&overlapped)
-        .SetReturn(SOCKET_ERROR);
-    STRICT_EXPECTED_CALL(mocked_WSAGetLastError())
-        .SetReturn(WSAECONNRESET);
-    STRICT_EXPECTED_CALL(mocked_CancelThreadpoolIo(test_ptp_io));
-    STRICT_EXPECTED_CALL(mocked_CloseHandle(IGNORED_ARG))
-        .ValidateArgumentValue_hObject(&overlapped_event);
-    STRICT_EXPECTED_CALL(free(IGNORED_ARG));
-
-    // act
-    result = async_socket_send_async(async_socket, payload_buffers, sizeof(payload_buffers) / sizeof(payload_buffers[0]), test_on_send_complete, NULL);
-
-    // assert
-    ASSERT_ARE_NOT_EQUAL(int, 0, result);
-    ASSERT_ARE_EQUAL(char_ptr, umock_c_get_expected_calls(), umock_c_get_actual_calls());
-
-    // cleanup
-    async_socket_destroy(async_socket);
-}
-
-/* Tests_SRS_ASYNC_SOCKET_WIN32_01_106: [ If WSASend fails with any other error, async_socket_send_async shall call CancelThreadpoolIo and return a non-zero value. ]*/
+// TODO: Add Spec
 TEST_FUNCTION(when_WSASend_returns_an_error_different_than_SOCKET_ERROR_async_socket_send_async_cancels_the_IO)
 {
     // arrange
@@ -1662,56 +1562,7 @@ TEST_FUNCTION(when_underlying_calls_fail_async_socket_receive_async_fails)
     async_socket_destroy(async_socket);
 }
 
-/* Tests_SRS_ASYNC_SOCKET_WIN32_01_054: [ If WSARecv fails with SOCKET_ERROR, async_socket_receive_async shall call WSAGetLastError. ]*/
-/* Tests_SRS_ASYNC_SOCKET_WIN32_01_055: [ If WSAGetLastError returns IO_PENDING, it shall be not treated as an error. ]*/
-TEST_FUNCTION(when_get_last_error_for_receive_returns_WSA_IO_PENDING_it_is_treated_as_successfull)
-{
-    // arrange
-    ASYNC_SOCKET_HANDLE async_socket = async_socket_create(test_execution_engine, test_socket);
-    int result;
-    uint8_t payload_bytes[] = { 0x42 };
-    ASYNC_SOCKET_BUFFER payload_buffers[1];
-    PTP_IO test_ptp_io;
-    DWORD expected_flags = 0;
-    PTP_WIN32_IO_CALLBACK test_on_io_complete;
-    PVOID test_ptp_io_context;
-    LPOVERLAPPED overlapped;
-    payload_buffers[0].buffer = payload_bytes;
-    payload_buffers[0].length = sizeof(payload_bytes);
-    umock_c_reset_all_calls();
-    STRICT_EXPECTED_CALL(mocked_InitializeThreadpoolEnvironment(IGNORED_ARG));
-    STRICT_EXPECTED_CALL(mocked_SetThreadpoolCallbackPool(IGNORED_ARG, test_pool));
-    STRICT_EXPECTED_CALL(mocked_CreateThreadpoolCleanupGroup());
-    STRICT_EXPECTED_CALL(mocked_CreateThreadpoolIo(test_socket, IGNORED_ARG, IGNORED_ARG, IGNORED_ARG))
-        .CaptureReturn(&test_ptp_io)
-        .CaptureArgumentValue_pv(&test_ptp_io_context)
-        .CaptureArgumentValue_pfnio(&test_on_io_complete);
-    (void)async_socket_open_async(async_socket, test_on_open_complete, (void*)0x4242);
-    umock_c_reset_all_calls();
-
-    STRICT_EXPECTED_CALL(malloc(IGNORED_ARG));
-    STRICT_EXPECTED_CALL(mocked_CreateEventA(NULL, FALSE, FALSE, NULL));
-    STRICT_EXPECTED_CALL(mocked_StartThreadpoolIo(test_ptp_io));
-    STRICT_EXPECTED_CALL(mocked_WSARecv((SOCKET)test_socket, IGNORED_ARG, 1, NULL, IGNORED_ARG, IGNORED_ARG, NULL))
-        .ValidateArgumentBuffer(5, &expected_flags, sizeof(expected_flags))
-        .CaptureArgumentValue_lpOverlapped(&overlapped)
-        .SetReturn(SOCKET_ERROR);
-    STRICT_EXPECTED_CALL(mocked_WSAGetLastError())
-        .SetReturn(WSA_IO_PENDING);
-
-    // act
-    result = async_socket_receive_async(async_socket, payload_buffers, sizeof(payload_buffers) / sizeof(payload_buffers[0]), test_on_receive_complete, NULL);
-
-    // assert
-    ASSERT_ARE_EQUAL(int, 0, result);
-    ASSERT_ARE_EQUAL(char_ptr, umock_c_get_expected_calls(), umock_c_get_actual_calls());
-
-    // cleanup
-    test_on_io_complete(NULL, test_ptp_io_context, overlapped, NO_ERROR, (ULONG_PTR)1, test_ptp_io);
-    async_socket_destroy(async_socket);
-}
-
-/* Tests_SRS_ASYNC_SOCKET_WIN32_01_105: [ If WSARecv fails with any other error, async_socket_receive_async shall call CancelThreadpoolIo and return a non-zero value. ]*/
+// TODO: Add SPEC
 TEST_FUNCTION(when_WSARecv_returns_an_error_different_than_SOCKET_ERROR_async_socket_receive_async_cancels_the_IO)
 {
     // arrange
@@ -1746,59 +1597,6 @@ TEST_FUNCTION(when_WSARecv_returns_an_error_different_than_SOCKET_ERROR_async_so
         .ValidateArgumentBuffer(5, &expected_flags, sizeof(expected_flags))
         .CaptureArgumentValue_lpOverlapped(&overlapped)
         .SetReturn(1);
-    STRICT_EXPECTED_CALL(mocked_CancelThreadpoolIo(test_ptp_io));
-    STRICT_EXPECTED_CALL(mocked_CloseHandle(IGNORED_ARG))
-        .ValidateArgumentValue_hObject(&overlapped_event);
-    STRICT_EXPECTED_CALL(free(IGNORED_ARG));
-
-    // act
-    result = async_socket_receive_async(async_socket, payload_buffers, sizeof(payload_buffers) / sizeof(payload_buffers[0]), test_on_receive_complete, NULL);
-
-    // assert
-    ASSERT_ARE_NOT_EQUAL(int, 0, result);
-    ASSERT_ARE_EQUAL(char_ptr, umock_c_get_expected_calls(), umock_c_get_actual_calls());
-
-    // cleanup
-    async_socket_destroy(async_socket);
-}
-
-/* Tests_SRS_ASYNC_SOCKET_WIN32_01_099: [ If WSAGetLastError returns any other error, async_socket_receive_async shall call CancelThreadpoolIo. ]*/
-TEST_FUNCTION(when_get_last_error_for_receive_returns_an_error_then_async_socket_receive_async_cancels_the_IO)
-{
-    // arrange
-    ASYNC_SOCKET_HANDLE async_socket = async_socket_create(test_execution_engine, test_socket);
-    int result;
-    uint8_t payload_bytes[] = { 0x42 };
-    ASYNC_SOCKET_BUFFER payload_buffers[1];
-    PTP_IO test_ptp_io;
-    DWORD expected_flags = 0;
-    PTP_WIN32_IO_CALLBACK test_on_io_complete;
-    PVOID test_ptp_io_context;
-    LPOVERLAPPED overlapped;
-    HANDLE overlapped_event;
-    payload_buffers[0].buffer = payload_bytes;
-    payload_buffers[0].length = sizeof(payload_bytes);
-    umock_c_reset_all_calls();
-    STRICT_EXPECTED_CALL(mocked_InitializeThreadpoolEnvironment(IGNORED_ARG));
-    STRICT_EXPECTED_CALL(mocked_SetThreadpoolCallbackPool(IGNORED_ARG, test_pool));
-    STRICT_EXPECTED_CALL(mocked_CreateThreadpoolCleanupGroup());
-    STRICT_EXPECTED_CALL(mocked_CreateThreadpoolIo(test_socket, IGNORED_ARG, IGNORED_ARG, IGNORED_ARG))
-        .CaptureReturn(&test_ptp_io)
-        .CaptureArgumentValue_pv(&test_ptp_io_context)
-        .CaptureArgumentValue_pfnio(&test_on_io_complete);
-    (void)async_socket_open_async(async_socket, test_on_open_complete, (void*)0x4242);
-    umock_c_reset_all_calls();
-
-    STRICT_EXPECTED_CALL(malloc(IGNORED_ARG));
-    STRICT_EXPECTED_CALL(mocked_CreateEventA(NULL, FALSE, FALSE, NULL))
-        .CaptureReturn(&overlapped_event);
-    STRICT_EXPECTED_CALL(mocked_StartThreadpoolIo(test_ptp_io));
-    STRICT_EXPECTED_CALL(mocked_WSARecv((SOCKET)test_socket, IGNORED_ARG, 1, NULL, IGNORED_ARG, IGNORED_ARG, NULL))
-        .ValidateArgumentBuffer(5, &expected_flags, sizeof(expected_flags))
-        .CaptureArgumentValue_lpOverlapped(&overlapped)
-        .SetReturn(SOCKET_ERROR);
-    STRICT_EXPECTED_CALL(mocked_WSAGetLastError())
-        .SetReturn(WSAECONNRESET);
     STRICT_EXPECTED_CALL(mocked_CancelThreadpoolIo(test_ptp_io));
     STRICT_EXPECTED_CALL(mocked_CloseHandle(IGNORED_ARG))
         .ValidateArgumentValue_hObject(&overlapped_event);

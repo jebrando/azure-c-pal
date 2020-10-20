@@ -68,7 +68,7 @@ X**SRS_ASYNC_SOCKET_WIN32_01_001: [** `async_socket_create` shall allocate a new
 
 X**SRS_ASYNC_SOCKET_WIN32_01_002: [** If `execution_engine` is NULL, `async_socket_create` shall fail and return NULL. **]**
 
-X**SRS_ASYNC_SOCKET_WIN32_01_034: [** If `socket_handle` is `INVALID_SOCKET`, `async_socket_create` shall fail and return NULL. **]**
+X**SRS_ASYNC_SOCKET_WIN32_01_034: [** If `socket_handle` is `NULL`, `async_socket_create` shall fail and return NULL. **]**
 
 X**SRS_ASYNC_SOCKET_WIN32_01_035: [** Otherwise, `async_socket_open_async` shall obtain the PTP_POOL from the execution engine passed to `async_socket_create` by calling `execution_engine_win32_get_threadpool`. **]**
 
@@ -190,13 +190,7 @@ X**SRS_ASYNC_SOCKET_WIN32_01_060: [** An asynchronous IO shall be started by cal
 
 X**SRS_ASYNC_SOCKET_WIN32_01_061: [** The `WSABUF` array associated with the context shall be sent by calling `WSASend` and passing to it the `OVERLAPPED` structure with the event that was just created, `dwFlags` set to 0, `lpNumberOfBytesSent` set to NULL and `lpCompletionRoutine` set to NULL. **]**
 
-X**SRS_ASYNC_SOCKET_WIN32_01_062: [** If `WSASend` fails, `async_socket_send_async` shall call `WSAGetLastError`. **]**
-
-X**SRS_ASYNC_SOCKET_WIN32_01_053: [** If `WSAGetLastError` returns `WSA_IO_PENDING`, it shall be not treated as an error. **]**
-
-X**SRS_ASYNC_SOCKET_WIN32_01_100: [** If `WSAGetLastError` returns any other error, `async_socket_send_async` shall call `CancelThreadpoolIo`. **]**
-
-X**SRS_ASYNC_SOCKET_WIN32_01_106: [** If `WSASend` fails with any other error, `async_socket_send_async` shall call `CancelThreadpoolIo` and return a non-zero value. **]**
+X**SRS_ASYNC_SOCKET_WIN32_01_062: [** If `net_comm_send_async` fails, `async_socket_send_async` shall call `CancelThreadpoolIo` and return MU_FAILURE. **]**
 
 X**SRS_ASYNC_SOCKET_WIN32_01_045: [** On success, `async_socket_send_async` shall return 0. **]**
 
@@ -242,13 +236,7 @@ X**SRS_ASYNC_SOCKET_WIN32_01_081: [** An asynchronous IO shall be started by cal
 
 X**SRS_ASYNC_SOCKET_WIN32_01_082: [** A receive shall be started for the `WSABUF` array associated with the context calling `WSARecv` and passing to it the `OVERLAPPED` structure with the event that was just created, `dwFlags` set to 0, `lpNumberOfBytesSent` set to NULL and `lpCompletionRoutine` set to NULL.. **]**
 
-X**SRS_ASYNC_SOCKET_WIN32_01_054: [** If `WSARecv` fails with `SOCKET_ERROR`, `async_socket_receive_async` shall call `WSAGetLastError`. **]**
-
-X**SRS_ASYNC_SOCKET_WIN32_01_105: [** If `WSARecv` fails with any other error, `async_socket_receive_async` shall call `CancelThreadpoolIo` and return a non-zero value. **]**
-
-X**SRS_ASYNC_SOCKET_WIN32_01_055: [** If `WSAGetLastError` returns `IO_PENDING`, it shall be not treated as an error. **]**
-
-X**SRS_ASYNC_SOCKET_WIN32_01_099: [** If `WSAGetLastError` returns any other error, `async_socket_receive_async` shall call `CancelThreadpoolIo`. **]**
+X**SRS_ASYNC_SOCKET_WIN32_01_054: [** If `WSARecv` fails, `async_socket_receive_async` shall call `CancelThreadpoolIo`. **]**
 
 X**SRS_ASYNC_SOCKET_WIN32_01_083: [** On success, `async_socket_receive_async` shall return 0. **]**
 
