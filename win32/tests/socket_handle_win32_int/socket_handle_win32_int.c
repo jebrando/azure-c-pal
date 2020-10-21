@@ -75,6 +75,19 @@ static void on_socket_send_complete(void* user_ctx, SOCKET_SEND_RESULT send_resu
 //    ASSERT_FAIL("umock_c reported error :%" PRI_MU_ENUM "", MU_ENUM_VALUE(UMOCK_C_ERROR_CODE, error_code));
 //}
 
+static void create_listener(void)
+{
+    // Create listening socket
+    CLIENT_INFO client_info = { 0 };
+    SOCKET_CONFIG config = { 0 };
+    config.port = TEST_PORT_VALUE;
+    config.accepted_socket = ADDRESS_TYPE_IP;
+    SOCKET_HANDLE listener = socket_create(&config, on_socket_error, &client_info);
+    ASSERT_IS_NOT_NULL(listener);
+
+
+}
+
 BEGIN_TEST_SUITE(socket_handle_win32_inttests)
 
 TEST_SUITE_INITIALIZE(suite_init)
@@ -119,6 +132,7 @@ TEST_FUNCTION(socket_handle_send_256_bytes_success)
     // TODO: Start the Server
     int result;
 
+
     CLIENT_INFO client_info = {0};
     SOCKET_CONFIG config = {0};
     config.hostname = TEST_HOSTNAME;
@@ -130,6 +144,9 @@ TEST_FUNCTION(socket_handle_send_256_bytes_success)
 
     result = socket_open(socket_handle, on_socket_open, &client_info);
     ASSERT_ARE_EQUAL(int, 0, result);
+
+    SOCKET underlying_socket = socket_get_underlying_handle(socket_handle);
+    ASSERT_IS_TRUE(INVALID_SOCKET != underlying_socket);
 
     result = socket_send(socket_handle, TEST_256_BYTES_SEND, SEND_BYTE_SIZE_256, on_socket_send_complete, &client_info);
     ASSERT_ARE_EQUAL(int, 0, result);

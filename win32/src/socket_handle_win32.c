@@ -340,18 +340,17 @@ int socket_open(SOCKET_HANDLE handle, ON_OPEN_COMPLETE on_open_complete, void* u
     }
     else
     {
-        SOCKET_INSTANCE* comm_impl = (SOCKET_INSTANCE*)handle;
         if (handle->current_state == IO_STATE_OPENING || handle->current_state == IO_STATE_OPEN)
         {
-            LogError("Invalid state for open %d", comm_impl->current_state);
+            LogError("Invalid state for open %d", handle->current_state);
             result = MU_FAILURE;
         }
-        else if (construct_socket_object(comm_impl) != 0)
+        else if (construct_socket_object(handle) != 0)
         {
             LogError("Failure constructing socket");
             result = __LINE__;
         }
-        else if (open_socket(comm_impl, on_open_complete, user_ctx) != 0)
+        else if (open_socket(handle, on_open_complete, user_ctx) != 0)
         {
             LogError("Failure opening socket");
             result = MU_FAILURE;
@@ -390,8 +389,7 @@ int socket_send(SOCKET_HANDLE handle, const void* buffer, size_t size, ON_SEND_C
     }
     else
     {
-        SOCKET_INSTANCE* comm_impl = (SOCKET_INSTANCE*)handle;
-        if (comm_impl->current_state != IO_STATE_OPEN)
+        if (handle->current_state != IO_STATE_OPEN)
         {
             LogError("Failure sending in incorrect state");
             result = MU_FAILURE;
@@ -404,7 +402,7 @@ int socket_send(SOCKET_HANDLE handle, const void* buffer, size_t size, ON_SEND_C
             send_item.send_data = buffer;
             send_item.data_len = size;
 
-            if (send_socket_data(comm_impl, &send_item) != 0)
+            if (send_socket_data(handle, &send_item) != 0)
             {
                 LogError("Failure attempting to send socket data");
                 result = MU_FAILURE;
@@ -517,7 +515,7 @@ int socket_recv_notify(SOCKET_HANDLE handle, void* buffer, uint32_t size, uint32
     return result;
 }
 
-/*static int socket_listen(SOCKET_HANDLE handle)
+int socket_listen(SOCKET_HANDLE handle)
 {
     int result;
     if (handle == NULL)
@@ -528,26 +526,25 @@ int socket_recv_notify(SOCKET_HANDLE handle, void* buffer, uint32_t size, uint32
     else
     {
         u_long mode = 1;
-        SOCKET_INSTANCE* comm_impl = (SOCKET_INSTANCE*)handle;
-        if (comm_impl->current_state == IO_STATE_OPENING || comm_impl->current_state == IO_STATE_OPEN)
+        if (handle->current_state == IO_STATE_OPENING || handle->current_state == IO_STATE_OPEN)
         {
             LogError("Socket is in invalid state to open");
             result = __LINE__;
         }
-        else if (comm_impl->address_type != ADDRESS_TYPE_IP)
+        else if (handle->address_type != ADDRESS_TYPE_IP)
         {
             LogError("Socket is in an invalid state");
             result = __LINE__;
         }
-        else if (construct_socket_object(comm_impl) != 0)
+        else if (construct_socket_object(handle) != 0)
         {
             LogError("Failure constructing socket");
             result = __LINE__;
         }
-        else if (ioctlsocket(comm_impl->socket, FIONBIO, &mode) != 0)
+        else if (ioctlsocket(handle->socket, FIONBIO, &mode) != 0)
         {
             LogError("Failure Setting unblocking socket");
-            close_socket(comm_impl);
+            close_socket(handle, NULL, NULL);
             result = __LINE__;
         }
         else
@@ -555,24 +552,24 @@ int socket_recv_notify(SOCKET_HANDLE handle, void* buffer, uint32_t size, uint32
             struct sockaddr_in serv_addr = { 0 };
             serv_addr.sin_family = AF_INET;
             serv_addr.sin_addr.s_addr = INADDR_ANY;
-            serv_addr.sin_port = htons(comm_impl->port);
+            serv_addr.sin_port = htons(handle->port);
 
             // bind the host address using bind() call
-            if (bind(comm_impl->socket, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
+            if (bind(handle->socket, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
             {
                 LogError("Failure binding to socket address error: %lu", WSAGetLastError() );
-                close_socket(comm_impl);
+                close_socket(handle, NULL, NULL);
                 result = __LINE__;
             }
-            else if (listen(comm_impl->socket, SOMAXCONN) < 0)
+            else if (listen(handle->socket, SOMAXCONN) < 0)
             {
                 LogError("Failure listening to incoming connection");
-                close_socket(comm_impl);
+                close_socket(handle, NULL, NULL);
                 result = __LINE__;
             }
             else
             {
-                comm_impl->current_state = IO_STATE_LISTENING;
+                handle->current_state = IO_STATE_LISTENING;
                 result = 0;
             }
         }
@@ -580,7 +577,7 @@ int socket_recv_notify(SOCKET_HANDLE handle, void* buffer, uint32_t size, uint32
     return result;
 }
 
-static SOCKET_HANDLE socket_accept_notify(SOCKET_HANDLE handle, const COMM_CALLBACK_INFO* client_cb)
+SOCKET_HANDLE socket_accept(SOCKET_HANDLE handle)
 {
     SOCKET_INSTANCE* result;
     if (handle == NULL)
@@ -590,16 +587,15 @@ static SOCKET_HANDLE socket_accept_notify(SOCKET_HANDLE handle, const COMM_CALLB
     }
     else
     {
-        SOCKET_INSTANCE* comm_impl = (SOCKET_INSTANCE*)handle;
         SOCKET_CONFIG config = { 0 };
         struct sockaddr_in cli_addr;
         socklen_t client_len = sizeof(cli_addr);
 
-        config.accepted_socket = accept(comm_impl->socket, (struct sockaddr*)&cli_addr, &client_len);
+        config.accepted_socket = accept(handle->socket, (struct sockaddr*)&cli_addr, &client_len);
         if (config.accepted_socket != INVALID_SOCKET)
         {
             u_long mode = 1;
-            if (ioctlsocket(comm_impl->socket, FIONBIO, &mode) != 0)
+            if (ioctlsocket(handle->socket, FIONBIO, &mode) != 0)
             {
                 LogLastError("Failure setting accepted socket to non blocking");
                 (void)shutdown(config.accepted_socket, SD_BOTH);
@@ -611,7 +607,7 @@ static SOCKET_HANDLE socket_accept_notify(SOCKET_HANDLE handle, const COMM_CALLB
                 char incoming_host[128];
                 config.port = cli_addr.sin_port;
                 config.hostname = inet_ntop(AF_INET, &cli_addr.sin_addr.s_addr, incoming_host, sizeof(incoming_host));
-                result = create_socket_info(&config, client_cb);
+                result = create_socket_info(&config);
             }
         }
         else
@@ -621,7 +617,7 @@ static SOCKET_HANDLE socket_accept_notify(SOCKET_HANDLE handle, const COMM_CALLB
         }
     }
     return result;
-}*/
+}
 
 SOCKET socket_get_underlying_handle(SOCKET_HANDLE handle)
 {
