@@ -37,10 +37,11 @@ static int load_credential_info(TLS_INSTANCE* tls_instance)
     return result;
 }
 
-static int send_client_handshake(TLS_INSTANCE* tls_instance, ON_HANDSHAKE_COMPLETE handshake_cb, void* handshake_ctx)
+static int send_client_handshake(TLS_INSTANCE* tls_instance, SOCKET_HANDLE socket, ON_HANDSHAKE_COMPLETE handshake_cb, void* handshake_ctx)
 {
     int result = 0;
     (void)tls_instance;
+    (void)socket;
     TLS_RESULT tls_result = TLS_OK;
 
     if (handshake_cb != NULL)
@@ -50,10 +51,11 @@ static int send_client_handshake(TLS_INSTANCE* tls_instance, ON_HANDSHAKE_COMPLE
     return result;
 }
 
-static int send_server_handshake(TLS_INSTANCE* tls_instance, ON_HANDSHAKE_COMPLETE handshake_cb, void* handshake_ctx)
+static int send_server_handshake(TLS_INSTANCE* tls_instance, SOCKET_HANDLE socket, ON_HANDSHAKE_COMPLETE handshake_cb, void* handshake_ctx)
 {
     int result = 0;
     (void)tls_instance;
+    (void)socket;
     TLS_RESULT tls_result = TLS_OK;
 
     if (handshake_cb != NULL)
@@ -115,7 +117,7 @@ void tls_destroy(TLS_HANDLE handle)
     }
 }
 
-int tls_init_client_handshake(TLS_HANDLE handle, ON_HANDSHAKE_COMPLETE handshake_cb, void* user_ctx)
+int tls_init_client_handshake(TLS_HANDLE handle, SOCKET_HANDLE socket, ON_HANDSHAKE_COMPLETE handshake_cb, void* user_ctx)
 {
     int result;
     if (handle == NULL)
@@ -125,7 +127,7 @@ int tls_init_client_handshake(TLS_HANDLE handle, ON_HANDSHAKE_COMPLETE handshake
     }
     else
     {
-        if (send_client_handshake(handle, handshake_cb, user_ctx) != 0)
+        if (send_client_handshake(handle, socket, handshake_cb, user_ctx) != 0)
         {
             LogError("Failure sending client handshake");
             result = MU_FAILURE;
@@ -138,7 +140,7 @@ int tls_init_client_handshake(TLS_HANDLE handle, ON_HANDSHAKE_COMPLETE handshake
     return result;
 }
 
-int tls_send_server_handshake(TLS_HANDLE handle, ON_HANDSHAKE_COMPLETE handshake_cb, void* user_ctx)
+int tls_send_server_handshake(TLS_HANDLE handle, SOCKET_HANDLE socket, ON_HANDSHAKE_COMPLETE handshake_cb, void* user_ctx)
 {
     int result;
     if (handle == NULL)
@@ -146,7 +148,7 @@ int tls_send_server_handshake(TLS_HANDLE handle, ON_HANDSHAKE_COMPLETE handshake
         LogError("Invalid parameter specified handle: %p", handle);
         result = MU_FAILURE;
     }
-    else if (send_server_handshake(handle, handshake_cb, user_ctx) != 0)
+    else if (send_server_handshake(handle, socket, handshake_cb, user_ctx) != 0)
     {
         LogError("Failure sending client handshake");
         result = MU_FAILURE;

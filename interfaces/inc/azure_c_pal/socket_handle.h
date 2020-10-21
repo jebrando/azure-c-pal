@@ -13,9 +13,7 @@ extern "C" {
 #include <stdint.h>
 #endif /* __cplusplus */
 
-#ifndef WIN32
-typedef int SOCKET;
-#endif // WIN32
+typedef int SYSTEM_SOCKET;
 
 typedef struct SOCKET_INSTANCE_TAG* SOCKET_HANDLE;
 
@@ -57,7 +55,7 @@ typedef struct SOCKET_CONFIG_TAG
     const char* hostname;
     uint16_t port;
     NET_ADDRESS_TYPE address_type;
-    SOCKET accepted_socket;
+    SYSTEM_SOCKET accepted_socket;
 } SOCKET_CONFIG;
 
 MOCKABLE_FUNCTION(, SOCKET_HANDLE, socket_create, const SOCKET_CONFIG*, parameters, ON_ERROR, on_error, void*, on_error_ctx);
@@ -71,7 +69,7 @@ MOCKABLE_FUNCTION(, int, socket_recv_notify, SOCKET_HANDLE, handle, void*, buffe
 MOCKABLE_FUNCTION(, int, socket_listen, SOCKET_HANDLE, handle);
 MOCKABLE_FUNCTION(, SOCKET_HANDLE, socket_accept, SOCKET_HANDLE, handle);
 
-MOCKABLE_FUNCTION(, SOCKET, socket_get_underlying_handle, SOCKET_HANDLE, handle);
+MOCKABLE_FUNCTION(, SYSTEM_SOCKET, socket_get_underlying_handle, SOCKET_HANDLE, handle);
 
 #ifdef __cplusplus
 }

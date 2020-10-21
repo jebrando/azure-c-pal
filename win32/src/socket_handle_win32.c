@@ -88,7 +88,7 @@ static int construct_socket_object(SOCKET_INSTANCE* comm_impl)
     }
     else
     {
-        comm_impl->socket = socket(AF_INET, SOCK_STREAM, 0);
+        comm_impl->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     }
 
     if (comm_impl->socket == INVALID_SOCKET)
@@ -591,7 +591,7 @@ SOCKET_HANDLE socket_accept(SOCKET_HANDLE handle)
         struct sockaddr_in cli_addr;
         socklen_t client_len = sizeof(cli_addr);
 
-        config.accepted_socket = accept(handle->socket, (struct sockaddr*)&cli_addr, &client_len);
+        config.accepted_socket = (SYSTEM_SOCKET)accept(handle->socket, (struct sockaddr*)&cli_addr, &client_len);
         if (config.accepted_socket != INVALID_SOCKET)
         {
             u_long mode = 1;
@@ -619,7 +619,7 @@ SOCKET_HANDLE socket_accept(SOCKET_HANDLE handle)
     return result;
 }
 
-SOCKET socket_get_underlying_handle(SOCKET_HANDLE handle)
+SYSTEM_SOCKET socket_get_underlying_handle(SOCKET_HANDLE handle)
 {
     SOCKET result;
     if (handle == NULL)
@@ -631,26 +631,5 @@ SOCKET socket_get_underlying_handle(SOCKET_HANDLE handle)
     {
         result = handle->socket;
     }
-    return result;
+    return (SYSTEM_SOCKET)result;
 }
-
-/*static const COMM_INTERFACE_DESCRIPTION socket_interface =
-{
-    socket_handle_create,
-    socket_handle_destroy,
-    socket_handle_open,
-    socket_handle_close,
-    socket_handle_send,
-    socket_handle_send_notify,
-    socket_handle_recv,
-    socket_handle_recv_notify,
-    socket_handle_underlying_handle,
-    socket_handle_listen,
-    NULL,
-    NULL
-};
-
-const COMM_INTERFACE_DESCRIPTION* comm_impl_get_socket_interface(void)
-{
-    return &socket_interface;
-}*/

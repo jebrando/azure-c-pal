@@ -25,8 +25,8 @@ typedef void(*ON_HANDSHAKE_COMPLETE)(void* user_ctx, TLS_RESULT result);
 MOCKABLE_FUNCTION(, TLS_HANDLE, tls_create);
 MOCKABLE_FUNCTION(, void, tls_destroy, TLS_HANDLE, handle);
 
-MOCKABLE_FUNCTION(, int, tls_init_client_handshake, TLS_HANDLE, handle, ON_HANDSHAKE_COMPLETE, handshake_cb, void*, user_ctx);
-MOCKABLE_FUNCTION(, int, tls_send_server_handshake, TLS_HANDLE, handle, ON_HANDSHAKE_COMPLETE, handshake_cb, void*, user_ctx);
+MOCKABLE_FUNCTION(, int, tls_init_client_handshake, TLS_HANDLE, handle, SOCKET_HANDLE, socket, ON_HANDSHAKE_COMPLETE, handshake_cb, void*, user_ctx);
+MOCKABLE_FUNCTION(, int, tls_send_server_handshake, TLS_HANDLE, handle, SOCKET_HANDLE, socket, ON_HANDSHAKE_COMPLETE, handshake_cb, void*, user_ctx);
 
 MOCKABLE_FUNCTION(, int, tls_encrypt_send_bytes, TLS_HANDLE, handle, const unsigned char*, buffer, size_t, size, ON_BYTES_ENCRYPTED, bytes_encrypted_cb, void*, user_ctx);
 MOCKABLE_FUNCTION(, int, tls_decrypt_recv_bytes, TLS_HANDLE, handle, const unsigned char*, buffer, size_t, size, ON_BYTES_DECRYPTED, bytes_decrypted_cb, void*, user_ctx);
