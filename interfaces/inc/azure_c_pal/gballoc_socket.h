@@ -1,7 +1,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#ifndef SOCKET_DEBUG_SHIM_H
-#define SOCKET_DEBUG_SHIM_H
+#ifndef GBALLOC_SOCKET_H
+#define GBALLOC_SOCKET_H
 
 #ifdef __cplusplus
 #include <cstdlib>
@@ -114,31 +114,6 @@ MOCKABLE_FUNCTION(, uint64_t, gballoc_socket_get_bytes_recv);
 MOCKABLE_FUNCTION(, uint64_t, gballoc_socket_get_num_recv);
 MOCKABLE_FUNCTION(, void, gballoc_socket_reset);
 
-#define socket gballoc_socket_socket
-#define send gballoc_socket_send
-#define recv gballoc_socket_recv
-#define connect gballoc_socket_connect
-#define fcntl gballoc_socket_fcntl
-#define shutdown gballoc_socket_shutdown
-#define getaddrinfo gballoc_socket_getaddrinfo
-#define freeaddrinfo gballoc_socket_freeaddrinfo
-#define bind gballoc_socket_bind
-#define listen gballoc_socket_listen
-#define accept gballoc_socket_accept
-
-#ifdef WIN32
-#define closesocket gballoc_socket_close
-#define ioctlsocket gballoc_socket_ioctlsocket
-#define WSAStartup gballoc_socket_wsastartup
-#define WSACleanup gballoc_socket_wsacleanup
-#define WSAGetLastError gballoc_socket_wsagetlasterror
-#define htons gballoc_socket_htons
-#define WSASend gballoc_socket_wsasend
-#define WSARecv gballoc_socket_wsarecv
-#else
-#define close gballoc_socket_close
-#endif
-
 #else // USE_SOCKET_DEBUG_SHIM
 
 #define gballoc_socket_init() 0
@@ -156,4 +131,4 @@ MOCKABLE_FUNCTION(, void, gballoc_socket_reset);
 }
 #endif
 
-#endif // SOCKET_DEBUG_SHIM_H
+#endif // GBALLOC_SOCKET_H

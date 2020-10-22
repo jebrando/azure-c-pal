@@ -35,6 +35,7 @@ static void my_gballoc_free(void* ptr)
 #include "azure_c_pal/gballoc_ll_redirect.h"
 #include "umock_c/umock_c_prod.h"
 #include "azure_c_pal/gballoc_socket.h"
+#include "azure_c_pal/gballoc_socket_redirect.h"
 
 #undef ENABLE_MOCKS
 

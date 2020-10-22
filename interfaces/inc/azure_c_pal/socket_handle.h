@@ -5,6 +5,7 @@
 
 #include "azure_macro_utils/macro_utils.h"
 #include "umock_c/umock_c_prod.h"
+#include "azure_c_pal/socket_objects.h"
 
 #ifdef __cplusplus
 #include <cstdint>
@@ -12,10 +13,6 @@ extern "C" {
 #else
 #include <stdint.h>
 #endif /* __cplusplus */
-
-typedef int SYSTEM_SOCKET;
-
-typedef struct SOCKET_INSTANCE_TAG* SOCKET_HANDLE;
 
 #define SOCKET_SEND_RESULT_VALUES \
     SOCKET_SEND_OK, \
@@ -56,6 +53,7 @@ typedef struct SOCKET_CONFIG_TAG
     uint16_t port;
     NET_ADDRESS_TYPE address_type;
     SYSTEM_SOCKET accepted_socket;
+    TLS_HANDLE tls_connection;
 } SOCKET_CONFIG;
 
 MOCKABLE_FUNCTION(, SOCKET_HANDLE, socket_create, const SOCKET_CONFIG*, parameters, ON_ERROR, on_error, void*, on_error_ctx);

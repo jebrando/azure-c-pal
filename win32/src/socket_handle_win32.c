@@ -13,7 +13,9 @@
 #include "azure_c_pal/gballoc_ll.h"
 #include "azure_c_pal/gballoc_ll_redirect.h"
 
+#include "azure_c_pal/socket_objects.h"
 #include "azure_c_pal/socket_handle.h"
+#include "azure_c_pal/tls_handle.h"
 #include "azure_c_pal/gballoc_socket.h"
 
 #define RECV_BYTES_MAX_VALUE            1024
@@ -44,6 +46,7 @@ typedef struct SOCKET_INSTANCE_TAG
     uint16_t port;
     NET_ADDRESS_TYPE address_type;
     SOCKET_STATE current_state;
+    TLS_HANDLE tls_conn;
 
     // Callbacks
     ON_ERROR on_error;
@@ -292,6 +295,11 @@ static SOCKET_INSTANCE* create_socket_info(const SOCKET_CONFIG* config)
             {
                 result->socket = INVALID_SOCKET;
             }
+
+            if (config->tls_connection != NULL)
+            {
+                result->tls_conn = config->tls_connection;
+            }
         }
     }
     return result;
@@ -353,6 +361,12 @@ int socket_open(SOCKET_HANDLE handle, ON_OPEN_COMPLETE on_open_complete, void* u
         else if (open_socket(handle, on_open_complete, user_ctx) != 0)
         {
             LogError("Failure opening socket");
+            result = MU_FAILURE;
+        }
+        else if (handle->tls_conn != NULL && tls_init_client_handshake(handle->tls_conn, handle, NULL, NULL) != 0)
+        {
+            close_socket(handle, NULL, NULL);
+            LogError("Failure initializing tls handshake");
             result = MU_FAILURE;
         }
         else
